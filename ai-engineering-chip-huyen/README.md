@@ -16,7 +16,19 @@ Original syntheses of each chapter, written as Claude Agent Skills. No book text
 | [`ai-eng-ch09-inference-optimization`](ai-eng-ch09-inference-optimization/SKILL.md) | 9. Inference Optimization |
 | [`ai-eng-ch10-architecture-and-user-feedback`](ai-eng-ch10-architecture-and-user-feedback/SKILL.md) | 10. AI Engineering Architecture and User Feedback |
 
-`ai-engineering-complete/references/` holds copies of the ten chapter skills so the whole-book skill is self-contained when installed on its own.
+## Structure
+
+Every skill follows progressive disclosure:
+
+- `SKILL.md`: short router (key decision rules, default workflow, links). Loaded only when the skill triggers.
+- `references/*.md`: one file per topic, read only when the task needs it. `references/source-map.md` maps each book section to the file that covers it.
+- `scripts/*.py`: standard-library calculators (memory, KV cache, latency and cost, pass@k, retrieval metrics, sample size, dedup, and more). Run with `--help`.
+
+`ai-engineering-complete` bundles all chapter references (prefixed `chNN-`) and scripts, plus a cross-chapter `lifecycle-playbook.md`. After editing any chapter skill, refresh it with:
+
+```
+python3 tools/build_complete.py
+```
 
 ## Install
 

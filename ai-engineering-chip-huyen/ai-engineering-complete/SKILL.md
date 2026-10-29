@@ -1,151 +1,170 @@
 ---
 name: ai-engineering-complete
-description: Use for any end-to-end question about building LLM / foundation-model applications: scoping a use case, picking a model, evaluation, prompting, RAG, agents, finetuning, dataset work, inference cost and latency, production architecture and user feedback. Whole-book guide to Chip Huyen's "AI Engineering" that routes to ten chapter references for depth.
+description: Whole-book guide to Chip Huyen's "AI Engineering" for building LLM / foundation-model applications end to end. Use when a task spans several stages (scoping, model selection, evaluation, prompting, RAG, agents, finetuning, dataset work, inference cost and latency, production architecture, user feedback) or when it is unclear which technique applies. Routes to per-topic references from all ten chapters and bundles 24 calculation scripts.
 ---
 
-# AI Engineering, complete guide (Chip Huyen, O'Reilly 2025)
+# AI Engineering, complete (Chip Huyen, O'Reilly 2025)
 
-This skill condenses the whole book into one operating model for building applications on top of foundation models. It sits on top of ten chapter skills, bundled in `references/`. Use this file for orientation, cross-chapter decisions and the end-to-end lifecycle; open the matching reference when the task needs depth (formulas, full checklists, glossaries, source maps).
+Operating model for building applications on top of foundation models, condensed from the whole book. This file holds the cross-chapter rules and a router; depth lives in `references/` (one file per topic, prefixed by chapter) and calculations in `scripts/`. Open only what the task needs.
 
-## When to use this skill
+## Core rules (apply without opening references)
 
-- Someone is starting or reviewing an LLM product and needs the full lifecycle, not one technique.
-- A question cuts across chapters: "should we prompt, add RAG or finetune?", "why is quality dropping in production?", "how do we make this cheaper without breaking it?".
-- You need to decide which chapter-level guidance applies before going deep.
+1. **Evaluation first.** Define failure modes, criteria, thresholds and eval sets before building; reuse that pipeline at every stage. Never ship on vibe checks or on public leaderboards alone.
+2. **Cheapest adequate lever.** Prompting, then RAG and tools, then PEFT finetuning, then full finetuning. Climb only after systematic experiments show the rung below is exhausted.
+3. **Diagnose the gap type.** Missing, private or stale information calls for retrieval; wrong format, style, safety or domain syntax calls for finetuning. Many systems need both.
+4. **Exact beats subjective.** Use unit tests, execution, schema checks and pass@k wherever an objective exists; AI judges only with a pinned model and prompt, plus human spot checks.
+5. **Strongest model for feasibility, smallest model that passes for production.** Revisit API vs self-hosting at each scale step.
+6. **Data is the moat.** Invest in annotation guidelines, curation (quality over quantity), verification of synthetic data and a user-feedback flywheel.
+7. **Latency and cost are requirements.** Measure TTFT, TPOT, percentiles and cost per request; find whether you are compute- or bandwidth-bound before optimizing.
+8. **Grow architecture incrementally.** Query to model to response first; then context, guardrails, router and gateway, caches, agent loops and write actions, with metrics, logs and traces from day one.
+9. **Gate side effects.** Write actions need human approval for risky steps, sandboxing and layered prompt-injection defenses; track false refusals alongside violations.
+10. **Watch for drift.** Version prompts, pin model versions, and keep evaluating in production.
 
-## Reference map
+## Lifecycle at a glance
 
-| Need | Open |
+| Phase | Core question | Read |
+|---|---|---|
+| 1. Scope | Should we build this, with what role for AI and humans, judged by which business metric? | ch01-*, lifecycle-playbook |
+| 2. Evaluation design | What will fail, how will we detect it, how much data do we need? | ch03-*, ch04-* |
+| 3. Model selection | Which models pass hard constraints and our own evals; API or self-host? | ch02-*, ch04-model-selection-and-hosting |
+| 4. Prompting | Is the prompt clear, versioned, robust and defended? | ch05-* |
+| 5. Context, RAG, agents | Does the model get the right information and tools, safely? | ch06-* |
+| 6. Finetuning and data | Is there a behavior gap that only weights can fix, and the data to fix it? | ch07-*, ch08-* |
+| 7. Inference optimization | Where is the bottleneck, and which lever moves it without hurting quality? | ch09-* |
+| 8. Production and feedback | Which components, which signals, which feedback loop? | ch10-* |
+
+For the detailed phase playbooks, a symptom-to-fix map across chapters, the adaptation ladder and a universal checklist, read [references/lifecycle-playbook.md](references/lifecycle-playbook.md).
+
+## Default workflow
+
+1. Place the task in a lifecycle phase (table above). If it spans phases, start with [references/lifecycle-playbook.md](references/lifecycle-playbook.md).
+2. Apply the core rules; open only the one or two references listed below whose "read when" matches.
+3. When numbers are involved (memory, cost, latency, sample sizes, retrieval or eval metrics), run the matching script instead of estimating by hand.
+4. State assumptions and which rule or reference drove each recommendation.
+
+<!-- BEGIN GENERATED: run tools/build_complete.py to refresh -->
+
+## References by chapter
+
+Each link is one level deep; read only the files whose description matches the task.
+
+### CH01: Introduction to Building AI Applications with Foundation Models
+
+- [ch01-ai-engineering-stack.md](references/ch01-ai-engineering-stack.md): read when staffing a team, planning a platform, choosing prompting vs finetuning, explaining AI vs ML vs full-stack engineering, interface options, or why evaluation is harder.
+- [ch01-expectations-milestones-maintenance.md](references/ch01-expectations-milestones-maintenance.md): read when writing success metrics, usefulness thresholds, a milestone plan, last-mile estimates, or a maintenance and risk register.
+- [ch01-foundation-models-and-adaptation.md](references/ch01-foundation-models-and-adaptation.md): read when explaining tokens, masked vs autoregressive models, self-supervision, model size and data, foundation and multimodal models, the three adaptation levers, or why AI engineering grew so fast.
+- [ch01-use-case-evaluation.md](references/ch01-use-case-evaluation.md): read when deciding whether to build, buy vs build, the AI's and humans' roles, Crawl-Walk-Run promotion criteria, or defensibility. Includes a decision record template.
+- [ch01-use-case-patterns.md](references/ch01-use-case-patterns.md): read when brainstorming or ranking ideas, applying the exposure lens, or needing evidence for a category (coding, image and video, writing, education, bots, aggregation, data organization, workflow automation).
+
+### CH02: Understanding Foundation Models
+
+- [ch02-inconsistency-and-hallucination.md](references/ch02-inconsistency-and-hallucination.md): read when outputs vary between runs, flip on small input changes, or contain fabricated facts.
+- [ch02-model-architecture-and-scale.md](references/ch02-model-architecture-and-scale.md): read for transformer internals, prefill vs decode, SSM/Mamba/RWKV alternatives, parameter and MoE reasoning, FLOPs and cost math, Chinchilla limits, inverse scaling, and scaling bottlenecks.
+- [ch02-post-training.md](references/ch02-post-training.md): read when explaining base vs SFT vs preference-tuned behavior, designing demonstration or comparison data, or using a reward model.
+- [ch02-sampling-and-test-time-compute.md](references/ch02-sampling-and-test-time-compute.md): read when choosing temperature, top-k, top-p, min-p, stop conditions or logprob use, or designing best-of-N, beam search, voting and verifier selection.
+- [ch02-structured-outputs.md](references/ch02-structured-outputs.md): read when outputs must be valid JSON, YAML, SQL, regex or fixed labels, or when JSON mode or constrained decoding is failing.
+- [ch02-training-data.md](references/ch02-training-data.md): read when judging whether a model covers a language, domain or data format, or deciding between specialized model, finetune and translation bridge.
+
+### CH03: Evaluation Methodology
+
+- [ch03-ai-as-a-judge.md](references/ch03-ai-as-a-judge.md): read when writing a judge prompt, choosing a scoring format or judge model, diagnosing judge inconsistency, drift or bias, budgeting judge cost and latency, or considering reward, reference-based or preference models.
+- [ch03-comparative-evaluation.md](references/ch03-comparative-evaluation.md): read when ranking models from pairwise votes, choosing Elo vs Bradley-Terry vs TrueSkill, judging a public arena, designing an internal leaderboard, or translating win rates into a switch decision.
+- [ch03-evaluation-landscape.md](references/ch03-evaluation-landscape.md): read when framing an evaluation plan, explaining why foundation models are hard to evaluate, separating exact from subjective methods, or walking the method selection ladder with a worked plan.
+- [ch03-exact-evaluation.md](references/ch03-exact-evaluation.md): read when building functional-correctness tests or pass@k, choosing among exact match, edit distance, n-gram metrics and embedding similarity, auditing references, or selecting an embedding model.
+- [ch03-language-modeling-metrics.md](references/ch03-language-modeling-metrics.md): read when computing or interpreting entropy, cross entropy, BPC, BPB or perplexity, comparing models across tokenizers, or using perplexity for contamination, deduplication or anomaly detection.
+
+### CH04: Evaluate AI Systems
+
+- [ch04-evaluation-criteria.md](references/ch04-evaluation-criteria.md): read when defining what to measure, choosing metrics for domain skill, generation quality, instruction following or personas, or setting cost and latency requirements.
+- [ch04-evaluation-pipeline.md](references/ch04-evaluation-pipeline.md): read when designing or auditing an evaluation pipeline: component and task evaluation, guidelines and rubrics, business mapping, method mix, annotation, slicing, set size, evaluator validation, iteration.
+- [ch04-factual-consistency-and-safety.md](references/ch04-factual-consistency-and-safety.md): read when measuring hallucination or grounding (including RAG answers), building a hallucination test set, or choosing toxicity and bias detectors.
+- [ch04-model-selection-and-hosting.md](references/ch04-model-selection-and-hosting.md): read when picking or switching models, reviewing open model licenses, or deciding between a model API and self-hosting.
+- [ch04-public-benchmarks-and-contamination.md](references/ch04-public-benchmarks-and-contamination.md): read when interpreting leaderboards, building a custom leaderboard, judging reports that a model got worse, or detecting and handling data contamination.
+
+### CH05: Prompt Engineering
+
+- [ch05-prompt-anatomy-and-context.md](references/ch05-prompt-anatomy-and-context.md): read when choosing zero vs few-shot, splitting system and user prompts, debugging chat templates, or designing long-context and NIAH tests.
+- [ch05-prompt-attacks.md](references/ch05-prompt-attacks.md): read when threat-modeling an LLM feature, assessing prompt extraction, jailbreak, indirect injection, training-data extraction or copyright risk.
+- [ch05-prompt-defenses.md](references/ch05-prompt-defenses.md): read when choosing and layering defenses, planning red teaming, or setting up violation and false refusal measurement.
+- [ch05-prompt-tooling-and-versioning.md](references/ch05-prompt-tooling-and-versioning.md): read when evaluating prompt optimizers or structured-output libraries, budgeting their API calls, or designing prompt storage, metadata and a versioned catalog.
+- [ch05-writing-effective-prompts.md](references/ch05-writing-effective-prompts.md): read when drafting or revising a prompt, enforcing output formats, restricting a model to its context, decomposing a task, or adding CoT or self-critique.
+
+### CH06: RAG and Agents
+
+- [ch06-agent-evaluation.md](references/ch06-agent-evaluation.md): read when testing or debugging an agent: failure taxonomy, planning-dataset metrics, tool testing, efficiency baselines, benchmarks.
+- [ch06-agents-tools-and-planning.md](references/ch06-agents-tools-and-planning.md): read when designing an agent: tool categories and write-action safety, plan generation and validation, function calling, plan granularity, control flows, ReAct/Reflexion, and tool selection.
+- [ch06-memory.md](references/ch06-memory.md): read when designing short-term and long-term memory, context budgets, eviction or summarization, or contradiction handling.
+- [ch06-retrieval-foundations.md](references/ch06-retrieval-foundations.md): read when deciding RAG vs long context, choosing term, embedding or hybrid retrieval, picking an ANN index, setting up retrieval evaluation, or applying RRF.
+- [ch06-retrieval-optimization-and-multimodal.md](references/ch06-retrieval-optimization-and-multimodal.md): read when tuning chunking, reranking, query rewriting or chunk enrichment, assessing a vector database product, or building RAG over images or SQL tables.
+
+### CH07: Finetuning
+
+- [ch07-deciding-to-finetune.md](references/ch07-deciding-to-finetune.md): read when deciding whether to finetune at all, choosing between finetuning and RAG, or planning the prompt-to-finetune ladder.
+- [ch07-finetuning-tactics.md](references/ch07-finetuning-tactics.md): read when picking the base model, development path, framework or API, setting hyperparameters, reading loss curves, or running the pre-launch and pre-ship checklists.
+- [ch07-memory-and-precision.md](references/ch07-memory-and-precision.md): read when sizing GPUs, explaining why training needs more memory, choosing FP32/BF16/FP16/INT8/INT4, or deciding between PTQ, QAT and mixed precision.
+- [ch07-model-merging.md](references/ch07-model-merging.md): read when combining models or adapters, doing multi-task finetuning, deploying on device, or choosing among linear, SLERP, TIES/DARE, layer stacking and concatenation.
+- [ch07-peft-and-lora.md](references/ch07-peft-and-lora.md): read when choosing among full, partial, adapter and soft-prompt methods, configuring LoRA targets, rank and alpha, serving many adapters, or using QLoRA.
+
+### CH08: Dataset Engineering
+
+- [ch08-curation-quality-and-coverage.md](references/ch08-curation-quality-and-coverage.md): read when choosing example formats, preparing CoT, tool-use or multi-turn data, defining quality criteria, or choosing diversity axes and data mix per phase.
+- [ch08-data-processing.md](references/ch08-data-processing.md): read when inspecting a raw dataset, defining and running deduplication, cleaning PII and markup, pruning to budget, or formatting for a chat template and matching inference prompts.
+- [ch08-data-synthesis-techniques.md](references/ch08-data-synthesis-techniques.md): read when generating or augmenting data (templates, perturbation, counterfactuals, simulation, self-play, paraphrase, translation, reverse instruction, long-context data, code pipelines, AI-judged preference pairs).
+- [ch08-quantity-acquisition-and-annotation.md](references/ch08-quantity-acquisition-and-annotation.md): read when sizing a dataset, interpreting a pilot or scaling curve, choosing PEFT vs full finetuning vs from scratch, planning staged finetuning, picking data sources, finding public datasets, or writing annotation guidelines.
+- [ch08-verification-limits-and-distillation.md](references/ch08-verification-limits-and-distillation.md): read when filtering synthetic or annotated data, assessing collapse, bias, imitation or lineage risks, or planning distillation or self-training.
+
+### CH09: Inference Optimization
+
+- [ch09-attention-kv-cache-and-kernels.md](references/ch09-attention-kv-cache-and-kernels.md): read when the KV cache limits batch or context, when selecting attention variants (GQA, MQA, local, cross-layer), PagedAttention or KV compression, or when working with kernels and compilers.
+- [ch09-bottlenecks-and-hardware.md](references/ch09-bottlenecks-and-hardware.md): read when deciding whether a workload is compute- or bandwidth-bound, comparing or buying accelerators, or reasoning about memory hierarchy, power and TDP.
+- [ch09-metrics-and-measurement.md](references/ch09-metrics-and-measurement.md): read when defining SLOs, building dashboards, computing cost per request, goodput, MFU or MBU, or interpreting utilization numbers.
+- [ch09-model-compression-and-decoding.md](references/ch09-model-compression-and-decoding.md): read when choosing among quantization, distillation and pruning, or tuning speculative decoding, inference with reference, or parallel decoding (Lookahead, Medusa).
+- [ch09-service-level-optimization.md](references/ch09-service-level-optimization.md): read when choosing online, batch or streaming APIs, configuring batching, splitting prefill and decode, setting up prompt caching, or picking a parallelism strategy and GPU placement.
+
+### CH10: AI Engineering Architecture and User Feedback
+
+- [ch10-agents-and-orchestration.md](references/ch10-agents-and-orchestration.md): read when adding agent loops or write actions, choosing or avoiding an orchestration framework, or cutting pipeline latency with parallelism.
+- [ch10-context-and-guardrails.md](references/ch10-context-and-guardrails.md): read when deciding on context construction, PII masking, input or output guardrail policies, retries, human handoff, or streaming versus safety.
+- [ch10-conversational-feedback-signals.md](references/ch10-conversational-feedback-signals.md): read when extracting explicit or implicit feedback from conversations, building a complaint taxonomy, or interpreting ambiguous user actions.
+- [ch10-feedback-design-and-limitations.md](references/ch10-feedback-design-and-limitations.md): read when designing feedback UI and timing, handling consent and visibility, or preparing feedback for training while controlling bias, degenerate loops, and sycophancy.
+- [ch10-observability.md](references/ch10-observability.md): read when defining production metrics, logging and tracing, incident debugging, or drift detection.
+- [ch10-routing-gateway-and-caching.md](references/ch10-routing-gateway-and-caching.md): read when adding routers, a model gateway, or an exact or semantic cache, or when checking cacheability and cross-user leak risk.
+
+Merged section maps for all chapters: [source-maps.md](references/source-maps.md).
+
+## Scripts
+
+Python 3 standard library only; run any script with `--help` for its arguments and an example.
+
+| Script | Purpose |
 |---|---|
-| Is this a good use case, build vs buy, AI's role, moats, setting expectations, the AI stack | `references/ch01-foundation-model-applications.md` |
-| Training data effects, transformer internals, model size and scaling, post-training (SFT, RLHF, DPO), sampling, structured output, hallucination causes | `references/ch02-understanding-foundation-models.md` |
-| Perplexity and cross entropy, exact vs subjective evaluation, similarity metrics, embeddings, AI-as-a-judge, comparative ranking (Elo, Bradley-Terry) | `references/ch03-evaluation-methodology.md` |
-| Evaluation criteria, factual consistency, instruction following, model selection, API vs self-hosting, benchmarks and contamination, designing an eval pipeline | `references/ch04-evaluating-ai-systems.md` |
-| Prompt structure, in-context learning, system vs user prompt, decomposition, chain-of-thought, prompt tooling and versioning, prompt attacks and defenses | `references/ch05-prompt-engineering.md` |
-| Retrieval (BM25, embeddings, hybrid, reranking, chunking), RAG evaluation, agents, tools, planning, reflection, agent failure modes, memory | `references/ch06-rag-and-agents.md` |
-| When to finetune, memory math, numeric formats and quantization, PEFT and LoRA/QLoRA, multi-LoRA serving, model merging, hyperparameters | `references/ch07-finetuning.md` |
-| Data quality, coverage and quantity, acquisition and annotation, synthetic data and its limits, distillation, deduplication, cleaning and formatting | `references/ch08-dataset-engineering.md` |
-| Latency and throughput metrics, compute vs bandwidth bound, hardware, compression, speculative decoding, KV cache and attention optimizations, batching, prompt caching, parallelism | `references/ch09-inference-optimization.md` |
-| Production architecture (context, guardrails, router, gateway, caches, agent loops), observability, drift, orchestration, user feedback design | `references/ch10-architecture-and-user-feedback.md` |
+| `scripts/usefulness_check.py` (ch01) | Estimate latency and cost per request and check them against usefulness thresholds. |
+| `scripts/sampling_demo.py` (ch02) | Show how temperature, top-k, top-p and min-p reshape a next-token distribution. |
+| `scripts/scaling_calculator.py` (ch02) | Back-of-envelope scaling calculator for foundation model training and serving. |
+| `scripts/lm_metrics.py` (ch03) | Cross entropy, perplexity, bits-per-character and bits-per-byte from token logprobs. |
+| `scripts/pass_at_k.py` (ch03) | Unbiased pass@k estimator for functional-correctness evaluation. |
+| `scripts/rank_matches.py` (ch03) | Rank models from pairwise matches with Elo and Bradley-Terry, and score each |
+| `scripts/eval_sample_size.py` (ch04) | Size an evaluation set and check how stable its score is. |
+| `scripts/ngram_contamination.py` (ch04) | Flag benchmark examples whose word n-grams also appear in a training corpus. |
+| `scripts/prompt_catalog_lint.py` (ch05) | Lint a JSON prompt catalog for the metadata a production prompt needs. |
+| `scripts/safety_metrics.py` (ch05) | Compute violation rate and false refusal rate from labeled red-team results. |
+| `scripts/agent_compound_success.py` (ch06) | Estimate how per-step accuracy compounds over a multi-step agent task. |
+| `scripts/retrieval_metrics.py` (ch06) | Compute retrieval quality metrics for a RAG retriever. |
+| `scripts/rrf_fuse.py` (ch06) | Merge several ranked retrieval lists with Reciprocal Rank Fusion (RRF). |
+| `scripts/finetune_memory.py` (ch07) | Back-of-the-envelope GPU memory estimator for serving and finetuning an LLM. |
+| `scripts/lora_params.py` (ch07) | Count LoRA trainable parameters for a transformer and size adapter storage. |
+| `scripts/annotator_agreement.py` (ch08) | Inter-annotator agreement (Cohen's kappa) between two label files. |
+| `scripts/inspect_jsonl.py` (ch08) | Inspection report for a JSONL training dataset (first step of data processing). |
+| `scripts/minhash_dedup.py` (ch08) | Near-duplicate detection for a JSONL dataset with MinHash + LSH banding (stdlib only). |
+| `scripts/kv_cache_size.py` (ch09) | Estimate KV cache memory for transformer inference, and how many sequences fit. |
+| `scripts/latency_report.py` (ch09) | Percentile latency report and goodput against an SLO, from a CSV of request timings. |
+| `scripts/mfu_mbu.py` (ch09) | Compute model FLOP/s utilization (MFU) and model bandwidth utilization (MBU). |
+| `scripts/request_latency_cost.py` (ch09) | Estimate per-request latency and cost for an LLM call (hosted API or self-hosted). |
+| `scripts/cache_savings.py` (ch10) | Estimate whether a system cache (exact or semantic) pays off. |
+| `scripts/implicit_feedback.py` (ch10) | Aggregate implicit conversational feedback signals from a JSONL log. |
 
-## The book's core thesis in seven ideas
+<!-- END GENERATED -->
 
-1. **Scale created a new discipline.** Only a few labs can train frontier models, so most teams consume them as a service. AI engineering is the work of adapting and shipping those models, which means less modeling and much more evaluation, context construction and product work than classic ML engineering.
-2. **Evaluation is the bottleneck and the backbone.** Open-ended outputs, black-box models and saturating benchmarks make evaluation hard, so it must be designed first (evaluation-driven development) and reused at every stage: model selection, prompting, RAG, finetuning, deployment and monitoring.
-3. **Adapt with the cheapest lever that works.** Prompting changes no weights, RAG adds information, finetuning changes behavior. Climb the ladder only when systematic experiments show the lower rung is exhausted.
-4. **Information problems and behavior problems need different fixes.** Missing, private or stale knowledge points to retrieval. Wrong format, style, safety or domain syntax points to finetuning. Many systems need both.
-5. **Data is the durable moat.** Models and techniques commoditize quickly; application data, annotation guidelines and a user-feedback flywheel are what newcomers can actually defend.
-6. **Production cost is dominated by inference.** Latency (TTFT, TPOT) and cost per request are product requirements, shaped by the prefill/decode split, memory bandwidth, the KV cache, batching and caching.
-7. **Grow architecture incrementally and observe everything.** Start with query, model, response. Add context, guardrails, routing, caching and agentic write actions only as needs appear, with metrics, logs and traces from day one.
+## Provenance
 
-## End-to-end lifecycle playbook
-
-### Phase 1: Scope (ch01, ch04)
-1. Classify the motivation: existential threat, profit or productivity gain, or exploration. Existential use cases justify building in-house; others start from buy options.
-2. Define AI's role: critical or complementary, reactive or proactive, static or dynamic. Define the human's role and plan a crawl, walk, run rollout where autonomy grows only with evidence (for example, acceptance rate of suggestions).
-3. Tie success to business metrics plus guardrail metrics (satisfaction, safety). Set a usefulness threshold covering quality, latency targets, cost per request and fairness.
-4. Check defensibility: is this a feature the next model release or a big platform will absorb? Where will proprietary data come from?
-5. Expect the last mile to dominate. A demo reaching most of the target is fast; closing the final gap can take far longer.
-
-### Phase 2: Evaluation design before building (ch03, ch04)
-1. List likely failure modes and turn each into a criterion in four buckets: domain capability, generation quality (factual consistency, safety), instruction following, cost and latency. Give each a metric, a hard threshold and a target.
-2. Prefer exact evaluation where an objective exists (unit tests, execution accuracy, pass@k, schema validity). Use similarity metrics only with complete, correct references. Use AI judges for subjective criteria, with a fixed model, a versioned prompt, a small labeled scale and examples per score.
-3. Never rely on a judge alone: pair with exact checks and human review of samples; watch self, position and verbosity bias and judge drift.
-4. Build several sliced eval sets (production-like, known-hard, user-error, out-of-scope). Size them to the gap you need to detect: roughly 10x more samples for a 3x smaller difference. Bootstrap to check stability.
-5. Evaluate the evaluator: does the score track real quality, is it reproducible, what does it cost?
-
-### Phase 3: Model selection (ch02, ch04)
-1. Filter on hard constraints: license (commercial use, using outputs to train other models), privacy, data lineage, on-device needs, required features (logprobs, finetuning, tool calling).
-2. Shortlist with public benchmarks and leaderboards, knowing they filter out bad models rather than find the best one, and may be contaminated.
-3. Run your own eval on the shortlist. For prompting work start with the strongest affordable model; for finetuning, start small and scale up.
-4. Weigh API vs self-hosting across privacy, performance, functionality, control and cost. API cost per token stays flat while self-hosting gets cheaper with volume, so revisit at each scale step.
-5. Account for model properties: training-data coverage of your language and domain (under-represented languages cost more tokens and score lower), total vs active parameters in MoE models, and post-training choices that affect behavior.
-
-### Phase 4: Prompting (ch02, ch05)
-1. Treat prompts as experiments: version them, keep the eval set fixed, judge changes on the whole system.
-2. Write clear instructions with a fallback for uncertainty, a persona when perspective matters, examples (more valuable in niche domains than general ones), explicit output format, and enough context.
-3. Put critical information at the start or end of long prompts; test placement per model. Always inspect the final rendered prompt, because chat-template mismatches fail silently.
-4. Decompose complex tasks into chains for debuggability and cheaper per-step models; give the model room to reason (chain-of-thought, self-critique) when quality matters more than latency.
-5. Tune sampling deliberately: temperature, top-p, min-p, stop conditions. For structured output, escalate from prompting, to parsing and retries, to constrained decoding, to finetuning.
-6. Secure the prompt layer: assume system prompts will leak; defend in layers against extraction, jailbreaks and indirect injection; measure violation rate together with false refusal rate.
-
-### Phase 5: Context construction, RAG and agents (ch06)
-1. Start retrieval with BM25 as a baseline; add embeddings for semantic matches; move to hybrid (cheap retriever plus reranker, or parallel retrievers fused with Reciprocal Rank Fusion).
-2. Tune the four levers: chunking, reranking, query rewriting, contextual retrieval (metadata, generated chunk context).
-3. Evaluate in layers: retrieval (context precision and recall, NDCG, MRR), embeddings, and end-to-end answers.
-4. For agents, choose tools deliberately (knowledge, capability extension, write actions), separate planning from execution, validate plans before running them, add reflection, and require human approval for risky write actions. Remember that per-step errors compound across long tasks.
-5. Track agent failures by type: invalid tool or parameters, goal failure, false completion claims, tool errors, inefficiency. Design memory in tiers (weights, context window, external store) with an eviction policy.
-
-### Phase 6: Finetuning and data (ch07, ch08)
-1. Finetune only after systematic prompting and RAG, and only for behavior gaps or to make a smaller model match a larger one.
-2. Estimate memory first: inference needs weights plus roughly 20% overhead; training adds gradients and optimizer state, and activations can exceed weights. Use gradient checkpointing, accumulation, offloading or parallelism to fit.
-3. Default to PEFT, usually LoRA (rank 4 to 64, apply across attention and feedforward); use QLoRA when memory is tight; serve variants as multi-LoRA adapters over one base model. Consider model merging to combine skills without retraining.
-4. Curate data for quality, coverage and quantity. A small, consistent, well-aligned set often beats a large noisy one. Pilot with 50 to 100 examples and train on subsets to see the scaling curve.
-5. Use synthetic data only with verification (execution, judges, back-translation, filters); mix in real data to avoid collapse; check licenses for distillation and track lineage.
-6. Process in order: inspect by hand, deduplicate (before splitting), clean and filter (markup, PII, disallowed fields), then format to the exact chat template used at inference.
-
-### Phase 7: Inference optimization (ch09)
-1. Measure first: TTFT, TPOT, total latency as percentiles, throughput, cost per request, goodput against an SLO, and MFU/MBU instead of naive GPU utilization.
-2. Identify the bottleneck: prefill is compute-bound, decode is memory-bandwidth-bound; the KV cache can outgrow the weights.
-3. Apply levers by level. Model level: weight quantization (the most impactful), distillation, speculative decoding, attention and KV cache optimizations. Service level: continuous batching, prefill/decode disaggregation, prompt caching, batch APIs for offline work, replica and tensor parallelism.
-4. Re-evaluate quality after any lossy change; even the same open model served by different providers can score differently.
-
-### Phase 8: Production architecture, monitoring and feedback (ch10)
-1. Add components in order of need: richer context, input guardrails (PII handling, malicious prompts), output guardrails (retry, parallel calls, block, human fallback), router and gateway (intent routing, fallback, access and cost control), caches (exact caching with exclusions; semantic caching only after measuring hit rate and error risk), then agent loops and write actions.
-2. Observe with metrics tied to failure modes and business metrics, logs with IDs, and traces per step; track MTTD, MTTR and change failure rate; read real samples daily.
-3. Watch for drift from silent prompt edits, changing user behavior and provider model updates behind unchanged names.
-4. Delay orchestration frameworks until they earn their abstraction cost.
-5. Design feedback capture: explicit ratings are sparse and biased; implicit signals (early stops, regenerations, edits, corrections, sharing, conversation length) are plentiful but noisy. Turn edits and comparisons into preference data, and guard against feedback loops and sycophancy.
-
-## Cross-chapter decision map
-
-| Symptom | Likely cause | First move | Then |
-|---|---|---|---|
-| Plausible but wrong facts | Missing context, or post-training mismatch | Ground with retrieval, allow "I don't know", ask for sources (ch02, ch06) | Factual-consistency evals (ch04) |
-| Wrong format or style | Weak instructions or behavior gap | Explicit format, examples, constrained decoding (ch02, ch05) | Finetune for format (ch07) |
-| Good demo, poor production quality | Eval set does not match traffic | Build production-like and hard slices (ch04) | Feedback-driven data flywheel (ch08, ch10) |
-| Retrieval returns near misses | Chunking, lexical gaps, ranking | Hybrid retrieval, reranker, query rewriting (ch06) | Finetune embeddings (ch06) |
-| Agent loops or fails silently | Planning errors, weak tools, compounding errors | Plan validation, reflection, tool ablation (ch06) | Stronger model, human approval (ch01, ch06) |
-| Too slow | Long outputs, large prefill, no batching | Measure TTFT/TPOT, shorten outputs, prompt caching (ch09) | Quantize, speculative decoding, disaggregate (ch09) |
-| Too expensive | Oversized model, repeated context | Route easy queries to smaller models (ch10), cache (ch09, ch10) | Distill or finetune a smaller model (ch07, ch08) |
-| Quality shifted with no code change | Drift | Version prompts and pin model versions (ch05, ch10) | Continuous evaluation in production (ch04, ch10) |
-| Security incident | Prompt injection, data leakage | Layered defenses, input/output guardrails (ch05, ch10) | Sandboxing and approval for write actions (ch06) |
-
-## The adaptation ladder (summary)
-
-| Rung | Changes | Best for | Cost and risk |
-|---|---|---|---|
-| Prompting | Nothing in the model | Most tasks; fast iteration | Fragile across models; leaks |
-| RAG and tools | Context per query | Knowledge, freshness, private data, actions | Retrieval quality, latency, injection surface |
-| PEFT finetuning | Small adapters | Format, style, domain syntax, smaller-model parity | Data, ML skill, maintenance, forgetting |
-| Full finetuning | All weights | Large datasets, deep behavior change | Highest memory and data cost |
-| Pre-training | Everything | Rarely justified for application teams | Prohibitive for most |
-
-## Universal checklist
-
-- [ ] Success defined in business terms with a usefulness threshold.
-- [ ] Failure modes listed and each mapped to an evaluation method.
-- [ ] Eval sets sliced, sized for the gap you care about, and versioned.
-- [ ] Prompts versioned, separate from code, rendered prompt inspected.
-- [ ] Simplest adaptation tried systematically before the next rung.
-- [ ] Retrieval evaluated separately from generation.
-- [ ] Write actions gated by approval and sandboxing.
-- [ ] Data inspected by hand, deduplicated, licensed and formatted to the inference template.
-- [ ] Latency measured as percentiles; cost per request known.
-- [ ] Guardrails on inputs and outputs, with false refusals tracked.
-- [ ] Metrics, logs and traces in place; drift sources monitored.
-- [ ] Feedback captured and routed back into data and evals.
-
-## Pitfalls that span the book
-
-- Shipping on vibe checks instead of a reusable evaluation pipeline.
-- Trusting public benchmarks or opaque AI judges as proof of fitness for your task.
-- Declaring "prompting doesn't work" after unsystematic experiments, then finetuning prematurely.
-- Treating long context windows as a replacement for retrieval.
-- Optimizing averages instead of latency percentiles, or GPU utilization instead of goodput.
-- Adding orchestration frameworks, semantic caches or agents before the need is proven.
-- Letting raw user feedback train the system toward sycophancy or filter bubbles.
-
-## Note on provenance
-
-This skill and its references are original syntheses written for agent use. They do not reproduce the book's text, tables or figures. Each reference ends with a source map of the chapter's section headings so readers can find the original discussion in the book.
+Original synthesis for agent use; it does not reproduce the book's text, tables or figures. `references/source-maps.md` maps each chapter section to the file that covers it, so readers can find the original discussion in the book. The chapter-level skills in the sibling `ai-eng-ch*` folders hold the same references and scripts; this folder is regenerated from them.
