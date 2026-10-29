@@ -5,3 +5,4 @@ Technical books turned into agent skills: one folder per book, one skill per cha
 ## Books
 
 - [AI Engineering, Chip Huyen](ai-engineering-chip-huyen/)
+- [Building Applications with AI Agents, Michael Albada](building-applications-with-ai-agents-albada/)
