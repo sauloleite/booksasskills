@@ -7,3 +7,4 @@ Technical books turned into agent skills: one folder per book, with skills per c
 - [AI Engineering, Chip Huyen](ai-engineering-chip-huyen/)
 - [Building Applications with AI Agents, Michael Albada](building-applications-with-ai-agents-albada/)
 - [Fundamentals of Software Engineering, Nathaniel Schutta and Dan Vega](fundamentals-of-software-engineering-schutta-vega/)
+- [Fundamentals of Software Architecture (2nd ed.), Mark Richards and Neal Ford](fundamentals-of-software-architecture-richards-ford/)
